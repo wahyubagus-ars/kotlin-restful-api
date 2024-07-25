@@ -1,0 +1,85 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import java.text.SimpleDateFormat
+
+plugins {
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.liquibase.gradle' version '2.2.0'
+	id 'org.jetbrains.kotlin.jvm' version '1.9.24'
+	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.24'
+	id 'org.jetbrains.kotlin.plugin.allopen' version '1.9.22'
+}
+
+group = 'rnd.restful-api'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+	implementation 'org.jetbrains.kotlin:kotlin-reflect'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.2'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.liquibase:liquibase-core:4.28.0'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(KotlinCompile) {
+	kotlinOptions {
+		jvmTarget = '21'
+		freeCompilerArgs += '-Xjsr305=strict'
+	}
+}
+
+allOpen {
+	annotation('jakarta.persistence.Entity')
+	annotation('jakarta.persistence.Embeddable')
+	annotation('jakarta.persistence.MappedSuperclass')
+}
+
+tasks.withType(Test) {
+	useJUnitPlatform()
+}
+
+task createChangelog {
+	description = 'Generates a new SQL changelog file with a timestamp and filename'
+	group = 'Changelog'
+
+	doLast {
+		def resourcePath = "db/changelog"
+		def timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+		def filename = project.hasProperty('filename') ? project.filename : 'new-changeset'
+		def sqlFileName = "src/main/resources/${resourcePath}/${timestamp}_${filename}.sql"
+
+		def sqlContent =
+"""
+-- Generated changelog file Timestamp: ${timestamp}
+-- Filepath: classpath:${resourcePath}/${timestamp}_${filename}.sql
+"""
+
+		def file = new File(sqlFileName)
+		file.parentFile.mkdirs()
+		file.text = sqlContent
+		println "Generated SQL file: ${sqlFileName}"
+	}
+}
