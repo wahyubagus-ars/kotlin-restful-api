@@ -1,19 +1,21 @@
 package rnd.restful_api.domain.dao
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.math.BigDecimal
 
 @Entity
 @Table(name = "product")
-class Product {
-
+data class Product(
     @Id
-    @GeneratedValue
-    var id: Long? = null;
-    var name: String = "";
-    var description: String = "";
-    var price: BigDecimal = BigDecimal.ZERO;
-}
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
+
+    @Column(name = "name")
+    val name: String? = "",
+
+    @Column(name = "description")
+    val description: String? = "",
+
+    @Column(name = "price")
+    val price: BigDecimal? = BigDecimal.ZERO,
+)
