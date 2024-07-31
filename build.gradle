@@ -37,11 +37,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.2'
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	implementation 'org.liquibase:liquibase-core:4.28.0'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.mockito.kotlin:mockito-kotlin:5.4.0"
+
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+	implementation "org.slf4j:slf4j-api:2.0.5"
+
+	runtimeOnly("com.h2database:h2")
 }
 
 tasks.withType(KotlinCompile) {
@@ -72,7 +80,7 @@ task createChangelog {
 		def sqlFileName = "src/main/resources/${resourcePath}/${timestamp}_${filename}.sql"
 
 		def sqlContent =
-"""
+				"""
 -- Generated changelog file Timestamp: ${timestamp}
 -- Filepath: classpath:${resourcePath}/${timestamp}_${filename}.sql
 """

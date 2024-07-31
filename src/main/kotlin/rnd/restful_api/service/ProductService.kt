@@ -1,5 +1,6 @@
 package rnd.restful_api.service
 
+import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -9,7 +10,10 @@ import rnd.restful_api.repository.ProductRepository
 import java.util.*
 
 @Service
-class ProductService(val productRepository: ProductRepository) {
+class ProductService (
+    val productRepository: ProductRepository
+) {
+    private val log = KotlinLogging.logger {}
 
     fun getProducts(): ResponseEntity<Any> {
         val listProduct: List<Product> = productRepository.findAll();

@@ -8,14 +8,14 @@ import java.math.BigDecimal
 data class Product(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
 
     @Column(name = "name")
-    val name: String? = "",
+    var name: String? = "",
 
     @Column(name = "description")
-    val description: String? = "",
+    var description: String? = "",
 
     @Column(name = "price")
-    val price: BigDecimal? = BigDecimal.ZERO,
+    var price: BigDecimal? = BigDecimal.ZERO,
 )
