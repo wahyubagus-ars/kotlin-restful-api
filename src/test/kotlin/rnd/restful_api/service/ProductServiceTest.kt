@@ -2,16 +2,20 @@ package rnd.restful_api.service
 
 import mu.KotlinLogging
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito.any
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.TestPropertySource
 import rnd.restful_api.domain.dao.Product
+import rnd.restful_api.domain.dto.request.AddProduct
+import rnd.restful_api.exception.GeneralException
 import rnd.restful_api.repository.ProductRepository
 import java.math.BigDecimal
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -38,51 +42,59 @@ class ProductServiceTest {
     }
 
     @Test
-    fun testCollection() {
-        val collectionList = listOf<String>("item1", "item2", "item3");
+    fun getProductsTestError() {
+        `when`(productRepository.findAll())
+            .thenReturn(listOf())
 
-        val newCollection = collectionList.map { it.uppercase() }
-
-        log.info { "new collection values: $newCollection "}
-
-        assertNotNull(newCollection)
-    }
-
-    @Test
-    fun testFilterCollection() {
-        val collectionList = listOf<Int>(1,2,3,4,5)
-            .filter { it > 3 }
-            .toList()
-
-        log.info { collectionList }
-    }
-
-    @Test
-    fun testCollectionListToMap() {
-        val collectionList = listOf<String>("item11", "item222", "item3")
-
-        val pairCollection = collectionList.associate { Pair(it, it.length) }
-
-        log.info { "pair collection: " to pairCollection }
-
-        val pairCollectionWith = collectionList.associateWith { it.length }
-
-        log.info { "associate collection with: " to pairCollectionWith }
-
-        val pairCollectionBy = collectionList.associateBy { it.length }
-
-        log.info { "associate collection by: $pairCollectionBy "}
-    }
-    @Test
-    fun testMapCollection() {
-        val map = mapOf<String, String>("key1" to "value1", "key2" to "value2")
-
-        map.forEach{ (key, value) ->
-            log.info { "key: $key and value: $value "}
+        val exception = assertThrows<GeneralException> {
+            productService.getProducts()
         }
 
-        val list = map.toList();
+        assertNotNull(exception)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.statusCode)
+    }
 
-        log.info { list }
+    @Test
+    fun addProductTestSuccess() {
+        val request = AddProduct(null, "Product Test", "Description test", BigDecimal.ZERO)
+        val response = productService.addProduct(request)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
+    @Test
+    fun detailProductTestSuccess() {
+        `when`(productRepository.findById(any()))
+            .thenReturn(Optional.of(Product()))
+
+        val response = productService.detailProduct(1L)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
+    @Test
+    fun detailProductTestNotFound() {
+        `when`(productRepository.findById(any()))
+            .thenReturn(Optional.empty())
+
+        val exception = assertThrows<GeneralException> {
+            productService.detailProduct(1L)
+        }
+
+        assertNotNull(exception)
+        assertEquals(HttpStatus.NOT_FOUND, exception.statusCode)
+    }
+
+    @Test
+    fun deleteProductTestSuccess() {
+        `when`(productRepository.findById(any()))
+            .thenReturn(Optional.of(Product()))
+
+        val response = productService.deleteProduct(1L)
+
+        assertNotNull(response)
+        assertEquals(HttpStatus.OK, response.statusCode)
     }
 }

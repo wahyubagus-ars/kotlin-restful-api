@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import rnd.restful_api.domain.dto.request.AddProduct
 import rnd.restful_api.domain.dto.request.DetailProduct
+import rnd.restful_api.domain.dto.response.BaseResponse
 import rnd.restful_api.service.ProductService
 
 @RestController
@@ -18,22 +19,22 @@ import rnd.restful_api.service.ProductService
 class ProductController(val productService: ProductService) {
 
     @GetMapping("/")
-    fun getProducts(): ResponseEntity<Any> {
+    fun getProducts(): ResponseEntity<BaseResponse<Any?>> {
         return productService.getProducts();
     }
 
     @PostMapping("/")
-    fun addProduct(@RequestBody request: AddProduct): ResponseEntity<Any> {
+    fun addProduct(@RequestBody request: AddProduct): ResponseEntity<BaseResponse<Any?>> {
         return productService.addProduct(request)
     }
 
     @PutMapping("/{id}")
-    fun detailProduct(@PathVariable(name = "id") id: Long): ResponseEntity<Any> {
+    fun detailProduct(@PathVariable(name = "id") id: Long): ResponseEntity<BaseResponse<Any?>> {
         return productService.detailProduct(id)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteProduct(@PathVariable(name = "id") id: Long): ResponseEntity<Any> {
+    fun deleteProduct(@PathVariable(name = "id") id: Long): ResponseEntity<BaseResponse<Any?>> {
         return productService.deleteProduct(id)
     }
 }
